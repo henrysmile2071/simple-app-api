@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { User } from '../entity/User';
+import { User } from '../entities/User';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
 import { AppDataSource } from '../data-source';
