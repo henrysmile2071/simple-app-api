@@ -1,8 +1,11 @@
 import "reflect-metadata"
+import dotenv from 'dotenv'
 import express, { Express, Request, Response } from 'express';
-import passport from './config/passport';
-import authRoutes from './routes/authRoutes';
+// import passport from './config/passport';
+// import authRoutes from './routes/authRoutes';
 import { AppDataSource } from "./data-source"
+
+dotenv.config()
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -12,10 +15,10 @@ AppDataSource.initialize().then(async () => {
 }).catch(error => console.log(error))
 
 app.use(express.json());
-app.use(passport.initialize());
+// app.use(passport.initialize());
 
 // Routes
-app.use('/auth', authRoutes);
+// app.use('/auth', authRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello, Retool API!');
