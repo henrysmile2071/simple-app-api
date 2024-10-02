@@ -25,7 +25,7 @@ export class User {
   updatedAt!: Date;
 
   @BeforeInsert()
-  async hashPassword() {
+  async hashPassword(): Promise<void> {
     if (this.password) {
       this.password = await bcrypt.hash(this.password, 10);
     }
