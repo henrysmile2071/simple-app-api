@@ -2,23 +2,29 @@ import "reflect-metadata"
 import dotenv from 'dotenv'
 import express, { Express, Request, Response } from 'express';
 import swaggerUi from 'swagger-ui-express';
-// import passport from './config/passport';
+import session from 'express-session';
+import passport from './config/passport';
 // import authRoutes from './routes/authRoutes';
-import { AppDataSource } from "./data-source"
 import { swaggerSpec } from './config/swagger';
+import { initializeDatabase } from './config/db';
 
 dotenv.config()
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-AppDataSource.initialize().then(async () => {
-  console.log("Data Source has been initialized!")
-}).catch(error => console.log(error))
-
-
 app.use(express.json());
-// app.use(passport.initialize());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: false,
+}));
+
+initializeDatabase();
+
+app.use(passport.initialize());
 
 // Serve Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
