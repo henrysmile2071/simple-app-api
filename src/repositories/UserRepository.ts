@@ -1,4 +1,4 @@
-import { AppDataSource } from "../data-source";
+import { AppDataSource } from "../config/db";
 import { User } from "../entities/User";
 
 export const userRepository = AppDataSource.getRepository(User);
@@ -16,6 +16,5 @@ export const createUser = async (email: string, password: string): Promise<User>
   user.email = email;
   user.password = password;
   user.isEmailVerified = false;
-  await user.hashPassword();
   return await userRepository.save(user);
 };

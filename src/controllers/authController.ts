@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { User } from '../entities/User';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
-import { AppDataSource } from '../data-source';
+import { AppDataSource } from '../config/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 

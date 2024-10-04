@@ -2,46 +2,53 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import bcrypt from 'bcrypt';
-import { getUserByEmail, getUserById } from '../services/UserService';
-
+import { getUserByEmail, getUserById } from '@services/UserService';
 // Local Strategy for user-defined password authentication
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-  },
-  async (email, password, done) => {
-    try {
-      const user = await getUserByEmail(email);
-      if (!user) {
-        return done(null, false, { message: 'User not found' });
-      }
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+    },
+    async (email, password, done) => {
+      try {
+        const user = await getUserByEmail(email);
+        if (!user) return done(null, false, { message: 'Email not found, please signup' });
+        
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) return done(null, false, { message: 'Invalid password' })
 
-      const isMatch = user.password ? bcrypt.compare(password, user.password) : false;
-      if (!isMatch) {
-        return done(null, false, { message: 'Invalid password' });
-      }
+        const isEmailVerified = user.isEmailVerified;
+        if (!isEmailVerified) {
+          //TODO send verification email
+          return done(null, false, { message: `Email not verified, please check ${email} inbox` });
+        }
 
-      return done(null, user);
-    } catch (error) {
-      return done(error);
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
     }
-  }
-));
+  )
+);
 
-// Google OAuth Strategy
-passport.use(new GoogleStrategy({
-  clientID: 'YOUR_GOOGLE_CLIENT_ID',
-  clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET',
-  callbackURL: '/auth/google/callback',
-},
-(accessToken, refreshToken, profile, done) => {
-  // Find or create user in your database
-  return done(null, profile);
-}));
+// // Google OAuth Strategy
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID: 'YOUR_GOOGLE_CLIENT_ID',
+//       clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET',
+//       callbackURL: '/auth/google/callback',
+//     },
+//     (accessToken, refreshToken, profile, done) => {
+//       // Find or create user in your database
+//       return done(null, profile);
+//     }
+//   )
+// );
 
 // Serialize user
-passport.serializeUser((user: any, done) => {
+passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
@@ -51,7 +58,7 @@ passport.deserializeUser(async (id: string, done) => {
     const user = await getUserById(id);
     done(null, user);
   } catch (err) {
-    done(err);
+    done(err, null);
   }
 });
 

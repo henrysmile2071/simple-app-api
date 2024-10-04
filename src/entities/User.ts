@@ -1,7 +1,8 @@
+import "reflect-metadata"
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BeforeInsert } from "typeorm"
 import bcrypt from 'bcrypt'
 
-@Entity('users')
+@Entity('Users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -9,7 +10,7 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true })
   email!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: false })
   password?: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })

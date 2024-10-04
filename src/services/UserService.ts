@@ -1,5 +1,5 @@
 import { findUserByEmail, findUserById, createUser } from '../repositories/UserRepository';
-import { User } from '../entities/User';
+import { User } from '@entities/User';
 
 // Find user by email
 export const getUserByEmail = async (email: string): Promise<User | null> => {
