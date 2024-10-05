@@ -87,7 +87,30 @@ router.post('/login', passport.authenticate('local', { failureFlash: true, failu
   res.send("login success");
 });
 
-//TODO Logout
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Logs out the authenticated user
+ *     description: Ends the session for the currently authenticated user and redirects to the login page.
+ *     tags:
+ *       - Auth
+ *     responses:
+ *       302:
+ *         description: Successfully logged out and redirected to the login page.
+ *       500:
+ *         description: Failed to log out
+ */
+router.post('/logout', (req, res) => { 
+   req.logout((err) => {
+     if (err) {
+       req.flash('error', 'Failed to log out');
+       return res.status(500);
+     }
+     req.flash('success', 'Logged out successfully');
+     res.redirect('/login');
+   });
+})
 //TODO Google OAuth
 
 export default router;

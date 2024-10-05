@@ -37,5 +37,11 @@ app.use('/users', userRoutes);
 app.get('/error', (req, res) => {
   res.status(401).send(req.flash('error'));
 });
+app.get('/login', (req, res) => {
+  res.redirect(process.env.LOGIN_PAGE_URL || '/');
+});
+app.get('home', (req, res) => {
+  res.redirect(process.env.HOME_PAGE_URL || '/');
+});
 
 export default app;
