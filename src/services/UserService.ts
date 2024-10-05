@@ -1,5 +1,6 @@
 import { findUserByEmail, findUserById, createUser } from '../repositories/UserRepository';
 import { User } from '@entities/User';
+import { UserProfile } from '@customTypes/custom';
 
 // Find user by email
 export const getUserByEmail = async (email: string): Promise<User | null> => {
@@ -7,7 +8,7 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 };
 
 // Create a new user
-export const registerUser = async (email: string, password: string): Promise<User>  => {
+export const registerUser = async (email: string, password: string): Promise<User> => {
   return await createUser(email, password);
 };
 
@@ -15,3 +16,10 @@ export const registerUser = async (email: string, password: string): Promise<Use
 export const getUserById = async (id: string): Promise<User | null> => {
   return await findUserById(id);
 };
+
+// Find user Profile by Id
+export const getUserProfileById = async (id: string): Promise<UserProfile | null> => { 
+  const user = await findUserById(id);
+  const userProfile = user ? { name: user.name, email: user.email } : null;
+  return userProfile;
+}

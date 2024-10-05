@@ -1,11 +1,21 @@
-import "reflect-metadata"
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BeforeInsert } from "typeorm"
-import bcrypt from 'bcrypt'
+import 'reflect-metadata';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BeforeInsert,
+} from 'typeorm';
+import bcrypt from 'bcrypt';
 
 @Entity('Users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  name!: string;
 
   @Column({ type: 'varchar', length: 255, unique: true })
   email!: string;

@@ -1,6 +1,4 @@
-export type User = {
-  id: string;
+export type UserProfile = {
+  name: string | null;
   email: string | null;
-  isEmailVerified: boolean;
-  token: string | null;
-};
+}
