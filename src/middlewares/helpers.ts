@@ -4,9 +4,7 @@ const ensureAuthenticated = (req: Request, res: Response, next: NextFunction): v
   if (req.isAuthenticated()) {
     return next();
   }
-  req.flash('error', 'You need to be logged in to access this page.');
-  res.status(401).send('Unauthorized');
-  res.redirect('/auth/login');
+  res.status(401).json({ message: 'Unauthorized' });
 };
 
 export { ensureAuthenticated };

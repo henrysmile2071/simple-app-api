@@ -1,8 +1,6 @@
 import { Router } from 'express';
 import passport from '@config/passport';
-import { registerUser, getUserByEmail } from '@services/UserService'; 
-import { passwordValidator } from 'src/middlewares/validators';
-
+import { signup } from '@controllers/authController';
 const router = Router();
 
 /**
@@ -46,33 +44,7 @@ const router = Router();
  *       400:
  *         description: User already exists.
  */
-router.post('/signup', async (req, res): Promise<void> => {
-  const { email, password } = req.body;
-
-  try {
-    if (!email ||!password) {
-      res.status(400).send('Missing email or password');
-      return;
-    }
-    if (!passwordValidator(password)) { 
-      res.status(400).send('Invalid password format');
-      return;
-    }
-    if (req.body.password !== req.body.passwordConfirmation) {
-      res.status(400).send('Passwords do not match');
-      return;
-    }
-    const existingUser = await getUserByEmail(email);
-    if (existingUser) {
-      res.status(400).json({ message: 'User already exists' });
-      return;
-    }
-    const newUser = await registerUser(email, password);
-    res.status(201).json(newUser);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+router.post('/signup', signup);
 
 /**
  * @swagger
@@ -110,11 +82,12 @@ router.post('/signup', async (req, res): Promise<void> => {
  *               type: string
  *       401:
  *         description: Invalid credentials (Unauthorized).
- *       302:
- *         description: Redirects to the home page on success, or to login page on failure.
  */
 router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: "/error" }), (req, res) => {
-  res.redirect('/');
+  res.send("login success");
 });
+
+//TODO Logout
+//TODO Google OAuth
 
 export default router;
