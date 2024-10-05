@@ -1,8 +1,7 @@
 import { Router } from 'express';
-import passport from '@config/passport'; // Already configured passport
-import { registerUser, getUserByEmail } from '@services/UserService'; // Business logic for users
-import { User } from '@entities/User';
-import { DoneCallback } from 'passport';
+import passport from '@config/passport';
+import { registerUser, getUserByEmail } from '@services/UserService'; 
+import { passwordValidator } from 'src/middlewares/validators';
 
 const router = Router();
 
@@ -51,9 +50,16 @@ router.post('/signup', async (req, res): Promise<void> => {
   const { email, password } = req.body;
 
   try {
+    if (!email ||!password) {
+      res.status(400).send('Missing email or password');
+      return;
+    }
+    if (!passwordValidator(password)) { 
+      res.status(400).send('Invalid password format');
+      return;
+    }
     if (req.body.password !== req.body.passwordConfirmation) {
-      res.status(401).send('Passwords do not match');
-
+      res.status(400).send('Passwords do not match');
       return;
     }
     const existingUser = await getUserByEmail(email);
@@ -61,7 +67,6 @@ router.post('/signup', async (req, res): Promise<void> => {
       res.status(400).json({ message: 'User already exists' });
       return;
     }
-
     const newUser = await registerUser(email, password);
     res.status(201).json(newUser);
   } catch (error) {
