@@ -6,6 +6,7 @@ import passport from './config/passport';
 import { swaggerSpec } from './config/swagger';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import { ensureAuthenticated } from '@middlewares/helpers';
 
 const app = express();
 
@@ -33,7 +34,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
+app.use('/users', ensureAuthenticated, userRoutes);
 app.get('/error', (req, res) => {
   res.status(401).send(req.flash('error'));
 });

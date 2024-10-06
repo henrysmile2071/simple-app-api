@@ -11,10 +11,18 @@ export const findUserById = async (id: string): Promise<User | null> => {
   return await userRepository.findOneBy({ id });
 };
 
-export const createUser = async (email: string, password: string): Promise<User> => {
+export const createUser = async (email: string, password: string, googleId?: string): Promise<User> => {
   const user = new User();
   user.email = email;
   user.password = password;
-  user.isEmailVerified = false;
+  user.googleId = googleId;
+  user.isEmailVerified = googleId ? true : false;
   return await userRepository.save(user);
 };
+
+export const updateUserName = async (id: string, name: string): Promise<User | null> => {
+  const user = await findUserById(id);
+  if (!user) return null;
+  user.name = name;
+  return await userRepository.save(user); 
+}
