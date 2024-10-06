@@ -1,12 +1,13 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { User } from '../entities/User';
 import jwt from 'jsonwebtoken';
 import { passwordValidator } from '@middlewares/validators';
 import { registerUser, getUserByEmail } from '@services/UserService';
+import { sendConfirmationEmail } from '@utils/sendmail';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-export const signup = async (req: Request, res: Response): Promise<void>=> {
+export const signup = async (req: Request, res: Response, next: NextFunction): Promise<void>=> {
   const { email, password } = req.body;
 
   try {
@@ -27,11 +28,14 @@ export const signup = async (req: Request, res: Response): Promise<void>=> {
       res.status(400).json({ message: 'User already exists' });
       return;
     }
+    // pass validation
     const newUser = await registerUser(email, password);
+    // send confirmation email
+    await sendConfirmationEmail(newUser.email, newUser.id);
+
     res.status(201).json(newUser);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    next(error)
   }
 };
 

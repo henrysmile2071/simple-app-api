@@ -26,3 +26,10 @@ export const updateUserName = async (id: string, name: string): Promise<User | n
   user.name = name;
   return await userRepository.save(user); 
 }
+
+export const verifyUserEmail = async (id: string): Promise<User | null> => {
+  const user = await findUserById(id);
+  if (!user) return null;
+  user.isEmailVerified = true;
+  return await userRepository.save(user);
+};

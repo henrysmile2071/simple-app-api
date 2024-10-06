@@ -3,6 +3,7 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { getUserByEmail, getUserById } from '@services/UserService';
+import { sendConfirmationEmail } from '@utils/sendmail';
 // Local Strategy for user-defined password authentication
 passport.use(
   new LocalStrategy(
@@ -20,7 +21,7 @@ passport.use(
 
         const isEmailVerified = user.isEmailVerified;
         if (!isEmailVerified) {
-          //TODO send verification email
+          await sendConfirmationEmail(user.email, user.id);
           return done(null, false, { message: `Email not verified, please check ${email} inbox` });
         }
 

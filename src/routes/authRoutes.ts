@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import passport from '@config/passport';
 import { signup } from '@controllers/authController';
+import { verifyUserEmailById } from '@services/UserService';
+import jwt from 'jsonwebtoken';
 const router = Router();
 
 /**
@@ -111,6 +113,82 @@ router.post('/logout', (req, res) => {
      res.redirect('/login');
    });
 })
-//TODO Google OAuth
 
+/**
+ * @swagger
+ * /auth/confirm-email/{token}:
+ *   get:
+ *     summary: Verify a user's email using a confirmation token.
+ *     description: Confirms a user's email address by decoding a JWT token and updating the user's verification status.
+ *     tags:
+ *       - Auth
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The email confirmation token provided to the user.
+ *     responses:
+ *       200:
+ *         description: Email successfully verified.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Email successfully verified!
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User not found.
+ *       400:
+ *         description: Invalid or expired token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid or expired token.
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error.
+ */
+router.get('/confirm-email/:token', async (req, res, next): Promise<void> => {
+  try {
+    const { token } = req.params;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+
+    const user = await verifyUserEmailById(decoded.userId);
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return
+    }
+
+    res.status(200).json({ message: 'Email successfully verified!' });
+    return
+  } catch (error) {
+    next(error)
+  }
+});
+//TODO Google OAuth
 export default router;
