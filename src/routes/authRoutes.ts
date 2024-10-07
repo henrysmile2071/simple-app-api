@@ -32,11 +32,11 @@ const router = Router();
  *               password:
  *                 type: string
  *                 description: The user's password.
- *                 example: password123
+ *                 example: Password!23
  *               passwordConfirmation:
  *                 type: string
  *                 description: The user's password confirmation
- *                 example: password123
+ *                 example: Password!23
  *     responses:
  *       201:
  *         description: User created successfully.
@@ -80,7 +80,7 @@ router.post('/signup', validate(userSignup), async (req, res, next): Promise<voi
  *               password:
  *                 type: string
  *                 description: The user's password.
- *                 example: password123
+ *                 example: Password!23
  *     responses:
  *       200:
  *         description: Successful login.
@@ -91,12 +91,14 @@ router.post('/signup', validate(userSignup), async (req, res, next): Promise<voi
  *               type: string
  *         content:
  *           application/json:
- *           schema:
- *             type: object
- *             properties:
- *               message:
- *                 type: string
- *                 example: login success
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Login successful"
+ *               example:
+ *                 message: "Login successful"
  *       401:
  *         description: Invalid credentials (Unauthorized).
  */

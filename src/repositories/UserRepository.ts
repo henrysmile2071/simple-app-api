@@ -33,3 +33,12 @@ export const verifyUserEmail = async (id: string): Promise<User | null> => {
   user.isEmailVerified = true;
   return await userRepository.save(user);
 };
+
+export const updateUserPassword = async (id: string, password: string): Promise<string> => { 
+  const user = await findUserById(id);
+  if (!user) return "User not found";
+  user.password = password;
+  await user.hashPassword();
+  await userRepository.save(user);
+  return "Password updated successfully";
+}

@@ -10,7 +10,8 @@ export const validate = (validations: ValidationChain[]) => {
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
+      // only return the first error message to the client
+      res.status(400).json({ error: errors.array()[0].msg });
       return;
     }
     // If no errors, move to the next middleware
@@ -38,7 +39,7 @@ export const userSignup = [
     .withMessage('Password must contain at least one lowercase letter')
     .matches(/[A-Z]/)
     .withMessage('Password must contain at least one uppercase letter')
-    .matches(/[^,.'";[+-_#~`^()=|}{:/><@$!%*?&]/)
+    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>]).+$/)
     .withMessage('Password must contain at least one special character'),
 
   check('passwordConfirmation')
@@ -47,7 +48,7 @@ export const userSignup = [
 ];
 
 export const userPassword = [
-  check('oldPassword').exists({ checkFalsy: true }).withMessage('Password is required'),
+  check('currentPassword').exists({ checkFalsy: true }).withMessage('Password is required'),
 
   check('newPassword')
     .isLength({ min: 8 })
@@ -58,11 +59,11 @@ export const userPassword = [
     .withMessage('Password must contain at least one lowercase letter')
     .matches(/[A-Z]/)
     .withMessage('Password must contain at least one uppercase letter')
-    .matches(/[^,.'";[+-_#~`^()=|}{:/><@$!%*?&]/)
+    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>]).+$/)
     .withMessage('Password must contain at least one special character'),
 
   check('newPasswordConfirmation')
-    .custom((value, { req }) => value === req.body.password)
+    .custom((value, { req }) => value === req.body.newPassword)
     .withMessage('Passwords do not match'),
 ];
 

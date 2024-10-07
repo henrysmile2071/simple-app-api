@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { getUserProfileById, updateUserNameById } from '@services/UserService';
-import { updateUserPassword } from '@controllers/userController';
+import { getUserById, getUserProfileById, updateUserNameById, updateUserPasswordById } from '@services/UserService';
 import { validate, userPassword, userName } from '@middlewares/validators';
 import { assertHasUser } from '@customTypes/custom';
 
@@ -84,19 +83,101 @@ router.get('/profile', async (req, res, next): Promise<void> => {
  */
 router.post('/name', validate(userName), async (req, res, next): Promise<void> => {
   try {
-      assertHasUser(req);
-      const updatedUserProfile = await updateUserNameById(req.user.id, req.body.name);
-      res.status(200).json(updatedUserProfile);
+    assertHasUser(req);
+    const updatedUserProfile = await updateUserNameById(req.user.id, req.body.name);
+    res.status(200).json(updatedUserProfile);
   } catch (error) {
     next(error);
   }
 });
 
+/**
+ * @swagger
+ * /users/password:
+ *   post:
+ *     summary: Update user password
+ *     description: Allows a user to update their password after providing the current password and new password.
+ *     tags:
+ *       - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *               - newPasswordConfirmation
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: The user's current password
+ *                 example: Password!23
+ *               newPassword:
+ *                 type: string
+ *                 description: The new password for the user
+ *                 example: Password!234
+ *               newPasswordConfirmation:
+ *                 type: string
+ *                 description: Must match the new password exactly
+ *                 example: Password!234
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password updated successfully
+ *       400:
+ *         description: Bad request, invalid input or password mismatch
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid password format or passwords do not match
+ *       401:
+ *         description: Unauthorized, user not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized access
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Server error
+ */
+router.post('/password', validate(userPassword), async (req, res, next): Promise<void> => {
+  try {
+    assertHasUser(req);
+    const verifyPassword = await (await getUserById(req.user.id))?.comparePassword(req.body.currentPassword);
+    if (!verifyPassword) {
+      res.status(400).json({ message: 'incorrect password' });
+      return
+    }
+    const result = await updateUserPasswordById(req.user.id, req.body.newPassword);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
 });
-//TODO Update user password
 //TODO Get user list
 //TODO Get user statistics
 
