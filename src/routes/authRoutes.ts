@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import passport from '@config/passport';
 import { signup } from '@controllers/authController';
+import { validate, userSignup } from '@middlewares/validators';
 import { verifyUserEmailById } from '@services/UserService';
 import jwt from 'jsonwebtoken';
 const router = Router();
@@ -46,7 +47,13 @@ const router = Router();
  *       400:
  *         description: User already exists.
  */
-router.post('/signup', signup);
+router.post('/signup', validate(userSignup), async (req, res, next): Promise<void> => {
+  try {
+    await signup(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * @swagger
@@ -82,12 +89,24 @@ router.post('/signup', signup);
  *             description: Sets a session cookie after successful login.
  *             schema:
  *               type: string
+ *         content:
+ *           application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *                 example: login success
  *       401:
  *         description: Invalid credentials (Unauthorized).
  */
-router.post('/login', passport.authenticate('local', { failureFlash: true, failureRedirect: "/error" }), (req, res) => {
-  res.send("login success");
-});
+router.post(
+  '/login',
+  passport.authenticate('local', { failureFlash: true, failureRedirect: '/error' }),
+  (req, res) => {
+    res.status(200).json({ message: 'login success' });
+  }
+);
 
 /**
  * @swagger
@@ -103,16 +122,16 @@ router.post('/login', passport.authenticate('local', { failureFlash: true, failu
  *       500:
  *         description: Failed to log out
  */
-router.post('/logout', (req, res) => { 
-   req.logout((err) => {
-     if (err) {
-       req.flash('error', 'Failed to log out');
-       return res.status(500);
-     }
-     req.flash('success', 'Logged out successfully');
-     res.redirect('/login');
-   });
-})
+router.post('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      req.flash('error', 'Failed to log out');
+      return res.status(500);
+    }
+    req.flash('success', 'Logged out successfully');
+    res.redirect('/login');
+  });
+});
 
 /**
  * @swagger
@@ -181,13 +200,12 @@ router.get('/confirm-email/:token', async (req, res, next): Promise<void> => {
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
-      return
+      return;
     }
 
     res.status(200).json({ message: 'Email successfully verified!' });
-    return
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 //TODO Google OAuth
