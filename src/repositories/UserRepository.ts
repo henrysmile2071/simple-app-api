@@ -1,5 +1,7 @@
-import { AppDataSource } from "../config/db";
-import { User } from "../entities/User";
+import { AppDataSource } from "@config/db";
+import { User } from "@entities/User";
+import { MoreThan, Between } from "typeorm";
+import { UserStats } from "@customTypes/custom";
 
 export const userRepository = AppDataSource.getRepository(User);
 
@@ -52,4 +54,36 @@ export const updateUserLoginStats = async (user: User): Promise<User> => {
   user.loginCount++;
   user.lastActiveSession = new Date();
   return await userRepository.save(user);
+}
+
+export const fetchUsersStats = async (): Promise<UserStats | null> => {
+  //total users count
+  const totalUsers = await userRepository.count();
+  
+  //Active users today
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const activeUserTodayCount = await userRepository.count({
+    where: {
+      lastActiveSession: MoreThan(startOfToday),
+    },
+  });
+
+  // 7-day rolling average of daily active users
+  const now = new Date();
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(now.getDate() - 7);
+
+  const activeUsersPast7Days = await userRepository.count({
+    where: {
+      lastActiveSession: Between(sevenDaysAgo, now),
+    },
+  });
+  console.log(activeUsersPast7Days);
+  const rolling7DayAvgActiveUserCount = Math.ceil(activeUsersPast7Days / 7);
+  return {
+    totalUsers,
+    activeUserTodayCount,
+    rolling7DayAvgActiveUserCount,
+  };
 }
