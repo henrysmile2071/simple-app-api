@@ -2,7 +2,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { getUserByEmail, getUserById } from '@services/UserService';
+import { getUserByEmail, getUserById, updateUserStats } from '@services/UserService';
 import { sendConfirmationEmail } from '@utils/sendmail';
 // Local Strategy for user-defined password authentication
 passport.use(
@@ -24,7 +24,7 @@ passport.use(
           await sendConfirmationEmail(user.email, user.id);
           return done(null, false, { message: `Email not verified, please check ${email} inbox` });
         }
-
+        await updateUserStats(user);
         return done(null, user);
       } catch (error) {
         return done(error);

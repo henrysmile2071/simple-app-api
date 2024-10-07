@@ -1,4 +1,4 @@
-import { findUserByEmail, findUserById, createUser, updateUserName, verifyUserEmail, updateUserPassword } from '../repositories/UserRepository';
+import { findUserByEmail, findUserById, createUser, updateUserName, verifyUserEmail, updateUserPassword, fetchUsersFromDatabase, updateUserLoginStats } from '../repositories/UserRepository';
 import { User } from '@entities/User';
 import { UserProfile } from '@customTypes/custom';
 
@@ -41,4 +41,14 @@ export const verifyUserEmailById = async (id: string):
 export const updateUserPasswordById = async (id: string, password: string): Promise<string> => {
   const result = await updateUserPassword(id, password);
   return result;
+}
+
+export const getUsers = async (): Promise<User[]> => {
+  const users = await fetchUsersFromDatabase();
+  return users;
+};
+
+export const updateUserStats = async (user: User): Promise<User | null> => { 
+  const updatedUser = await updateUserLoginStats(user);
+  return updatedUser;
 }

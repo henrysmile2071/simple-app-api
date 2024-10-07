@@ -1,13 +1,6 @@
-import 'reflect-metadata';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  BeforeInsert,
-} from 'typeorm';
-import bcrypt from 'bcrypt';
+import "reflect-metadata"
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, BeforeInsert } from "typeorm"
+import bcrypt from 'bcrypt'
 
 @Entity('Users')
 export class User {
@@ -28,6 +21,12 @@ export class User {
 
   @Column({ type: 'boolean', default: false })
   isEmailVerified!: boolean;
+
+  @Column({ type: 'int', default: 0 })
+  loginCount!: number; 
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastActiveSession!: Date; 
 
   @CreateDateColumn()
   createdAt!: Date;

@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { getUserById, getUserProfileById, updateUserNameById, updateUserPasswordById } from '@services/UserService';
+import {
+  getUserById,
+  getUserProfileById,
+  updateUserNameById,
+  updateUserPasswordById,
+  getUsers,
+} from '@services/UserService';
 import { validate, userPassword, userName } from '@middlewares/validators';
 import { assertHasUser } from '@customTypes/custom';
 
@@ -167,10 +173,12 @@ router.post('/name', validate(userName), async (req, res, next): Promise<void> =
 router.post('/password', validate(userPassword), async (req, res, next): Promise<void> => {
   try {
     assertHasUser(req);
-    const verifyPassword = await (await getUserById(req.user.id))?.comparePassword(req.body.currentPassword);
+    const verifyPassword = await (
+      await getUserById(req.user.id)
+    )?.comparePassword(req.body.currentPassword);
     if (!verifyPassword) {
       res.status(400).json({ message: 'incorrect password' });
-      return
+      return;
     }
     const result = await updateUserPasswordById(req.user.id, req.body.newPassword);
     res.status(200).json(result);
@@ -178,7 +186,88 @@ router.post('/password', validate(userPassword), async (req, res, next): Promise
     next(error);
   }
 });
-//TODO Get user list
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get users list
+ *     description: Retrieves a list of all users.
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: A list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     description: The unique identifier for the user
+ *                     example: "123e4567-e89b-12d3-a456-426614174000"
+ *                   name:
+ *                     type: string
+ *                     description: The name of the user
+ *                     example: "John Doe"
+ *                   email:
+ *                     type: string
+ *                     description: The email of the user
+ *                     example: "johndoe@example.com"
+ *                   loginCount:
+ *                     type: number
+ *                     description: The login count of the user
+ *                     example: 0
+ *                   lastActiveSession:
+ *                     type: string
+ *                     format: date-time
+ *                     description: user last active session timestamp
+ *                     example: "2023-06-15T11:24:22Z"
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: When the user was created
+ *                     example: "2023-05-12T14:36:22Z"
+ *       401:
+ *         description: Unauthorized access, user is not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Server error"
+ */
+router.get('/', async (req, res, next): Promise<void> => {
+  try {
+    assertHasUser(req);
+    const rawUsers = await getUsers();
+    const users = rawUsers.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      loginCount: user.loginCount,
+      lastActiveSession: user.lastActiveSession,
+      createdAt: user.createdAt,
+    }));
+    res.status(200).json(users);
+  } catch (error) {
+    next(error);
+  }
+});
 //TODO Get user statistics
 
 export default router;

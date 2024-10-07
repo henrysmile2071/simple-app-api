@@ -105,7 +105,7 @@ router.post('/signup', validate(userSignup), async (req, res, next): Promise<voi
 router.post(
   '/login',
   passport.authenticate('local', { failureFlash: true, failureRedirect: '/error' }),
-  (req, res) => {
+  async(req, res) => {
     res.status(200).json({ message: 'login success' });
   }
 );

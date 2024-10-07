@@ -42,3 +42,14 @@ export const updateUserPassword = async (id: string, password: string): Promise<
   await userRepository.save(user);
   return "Password updated successfully";
 }
+
+export const fetchUsersFromDatabase = async (): Promise<User[]> => {
+  const users = await userRepository.find();
+  return users;
+}
+
+export const updateUserLoginStats = async (user: User): Promise<User> => {
+  user.loginCount++;
+  user.lastActiveSession = new Date();
+  return await userRepository.save(user);
+}
