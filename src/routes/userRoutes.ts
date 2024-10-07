@@ -1,14 +1,8 @@
 import { Router } from 'express';
 import { getUserProfileById, updateUserNameById } from '@services/UserService';
-import { User } from '@entities/User';
-import { body, validationResult } from 'express-validator';
-
-type RequestWithUser = Express.Request & { user: User };
-function assertHasUser(req: Express.Request): asserts req is RequestWithUser {
-  if (!('user' in req)) {
-    throw new Error('Request object without user found unexpectedly');
-  }
-}
+import { updateUserPassword } from '@controllers/userController';
+import { validate, userPassword, userName } from '@middlewares/validators';
+import { assertHasUser } from '@customTypes/custom';
 
 const router = Router();
 
@@ -88,16 +82,16 @@ router.get('/profile', async (req, res, next): Promise<void> => {
  *       500:
  *         description: Internal server error
  */
-router.post('/name', body('name').isString(), async (req, res, next): Promise<void> => {
+router.post('/name', validate(userName), async (req, res, next): Promise<void> => {
   try {
-    const result = validationResult(req);
-    if (result.isEmpty()) {
       assertHasUser(req);
       const updatedUserProfile = await updateUserNameById(req.user.id, req.body.name);
       res.status(200).json(updatedUserProfile);
-      return
-    }
-    res.status(400).json(result.array());
+  } catch (error) {
+    next(error);
+  }
+});
+
   } catch (error) {
     next(error);
   }
