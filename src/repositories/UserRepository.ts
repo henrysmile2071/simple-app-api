@@ -79,7 +79,7 @@ export const fetchUsersStats = async (): Promise<UserStats | null> => {
       lastActiveSession: Between(sevenDaysAgo, now),
     },
   });
-  console.log(activeUsersPast7Days);
+  
   const rolling7DayAvgActiveUserCount = Math.ceil(activeUsersPast7Days / 7);
   return {
     totalUsers,
