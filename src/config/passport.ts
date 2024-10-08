@@ -2,7 +2,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { getUserByEmail, getUserById, updateUserStats } from '@services/UserService';
+import { getUserByEmail, getUserById, updateUserStats, registerUser } from '@services/UserService';
 import { sendConfirmationEmail } from '@utils/sendmail';
 // Local Strategy for user-defined password authentication
 passport.use(
@@ -33,20 +33,30 @@ passport.use(
   )
 );
 
-// // Google OAuth Strategy
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: 'YOUR_GOOGLE_CLIENT_ID',
-//       clientSecret: 'YOUR_GOOGLE_CLIENT_SECRET',
-//       callbackURL: '/auth/google/callback',
-//     },
-//     (accessToken, refreshToken, profile, done) => {
-//       // Find or create user in your database
-//       return done(null, profile);
-//     }
-//   )
-// );
+// Google OAuth Strategy
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      callbackURL: '/auth/google/callback',
+    },
+    async(accessToken, refreshToken, profile, done) => {
+      try {
+        if (!profile.emails) throw new Error('No email found in Google profile');
+        let user = await getUserByEmail(profile.emails?.[0].value);
+
+        if (!user) {
+          user = await registerUser(profile.emails?.[0].value, null, profile.displayName, profile.id);
+        }
+
+        done(null, user);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);
 
 // Serialize user
 passport.serializeUser((user, done) => {

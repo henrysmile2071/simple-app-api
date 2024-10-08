@@ -13,11 +13,12 @@ export const findUserById = async (id: string): Promise<User | null> => {
   return await userRepository.findOneBy({ id });
 };
 
-export const createUser = async (email: string, password: string, googleId?: string): Promise<User> => {
+export const createUser = async (email: string, password: string | null, name: string | null, googleId: string | null): Promise<User> => {
   const user = new User();
   user.email = email;
   user.password = password;
   user.googleId = googleId;
+  user.name = name;
   user.isEmailVerified = googleId ? true : false;
   return await userRepository.save(user);
 };
@@ -79,7 +80,7 @@ export const fetchUsersStats = async (): Promise<UserStats | null> => {
       lastActiveSession: Between(sevenDaysAgo, now),
     },
   });
-  
+
   const rolling7DayAvgActiveUserCount = Math.ceil(activeUsersPast7Days / 7);
   return {
     totalUsers,

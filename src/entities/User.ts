@@ -8,16 +8,16 @@ export class User {
   id!: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  name!: string;
+  name!: string | null;
 
   @Column({ type: 'varchar', length: 255, unique: true })
   email!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  password?: string;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  password!: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  googleId?: string;
+  googleId!: string | null;
 
   @Column({ type: 'boolean', default: false })
   isEmailVerified!: boolean;

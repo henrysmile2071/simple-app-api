@@ -18,8 +18,8 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 };
 
 // Create a new user
-export const registerUser = async (email: string, password: string): Promise<User> => {
-  return await createUser(email, password);
+export const registerUser = async (email: string, password: string | null, name: string | null, googleId: string | null): Promise<User> => {
+  return await createUser(email, password, name, googleId);
 };
 
 // Find user by ID

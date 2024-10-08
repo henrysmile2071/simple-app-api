@@ -205,10 +205,51 @@ router.get('/confirm-email/:token', async (req, res, next): Promise<void> => {
       return;
     }
 
-    res.status(200).redirect(process.env.LOGIN_PAGE_URL || '/');
+    res.status(200).redirect(process.env.LOGIN_PAGE_URL!);
   } catch (error) {
     next(error);
   }
 });
-//TODO Google OAuth
+
+/**
+ * @swagger
+ * /auth/google:
+ *   get:
+ *     summary: Initiates Google OAuth authentication.
+ *     description: Redirects the user to Google's OAuth 2.0 login page to authenticate using their Google account.
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       302:
+ *         description: Redirects to Google's OAuth 2.0 authorization page.
+ */
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+/**
+ * @swagger
+ * /auth/google/callback:
+ *   get:
+ *     summary: Google OAuth callback.
+ *     description: Handles the callback after Google authenticates the user. If the authentication is successful, the user is redirected to the home page. On failure, they are redirected to the login page.
+ *     tags:
+ *       - Authentication
+ *     responses:
+ *       302:
+ *         description: 
+ *           - Redirects to the home page on successful login.
+ *           - Redirects to the login page on authentication failure.
+ *         headers:
+ *           Set-Cookie:
+ *             description: Sets a session cookie after successful login.
+ *             schema:
+ *               type: string
+ */
+router.get('/google/callback',
+  passport.authenticate('google', { failureRedirect: process.env.LOGIN_PAGE_URL! }),
+  (req, res) => {
+    
+    res.redirect(process.env.HOME_PAGE_URL!);
+  }
+);
+
 export default router;

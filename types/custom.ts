@@ -19,9 +19,9 @@ export interface UserStats {
 
 export interface UserStat {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
   loginCount: number;
-  lastActiveSession: Date;
+  lastActiveSession: Date | null;
   createdAt: Date;
 }
