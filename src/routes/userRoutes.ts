@@ -189,6 +189,46 @@ router.post('/password', validate(userPassword), async (req, res, next): Promise
 });
 /**
  * @swagger
+ * /users/stats:
+ *   get:
+ *     summary: Retrieve statistics about users
+ *     description: Fetches total user count, active users today, and rolling 7-day average active users.
+ *     tags:
+ *       - Users
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalUsers:
+ *                   type: integer
+ *                   description: Total number of users in the system.
+ *                   example: 1000
+ *                 activeUserTodayCount:
+ *                   type: integer
+ *                   description: Number of users active today.
+ *                   example: 150
+ *                 rolling7DayAvgActiveUserCount:
+ *                   type: number
+ *                   description: Rolling 7-day average of active users.
+ *                   example: 200
+ *       500:
+ *         description: Server error.
+ */
+router.get('/stats', async (req, res, next): Promise<void> => {
+  try {
+    const result = await getUsersStats();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @swagger
  * /users:
  *   get:
  *     summary: Get users list
@@ -260,44 +300,4 @@ router.get('/', async (req, res, next): Promise<void> => {
     next(error);
   }
 });
-/**
- * @swagger
- * /users/stats:
- *   get:
- *     summary: Retrieve statistics about users
- *     description: Fetches total user count, active users today, and rolling 7-day average active users.
- *     tags:
- *       - Users
- *     responses:
- *       200:
- *         description: Successfully retrieved user statistics
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 totalUsers:
- *                   type: integer
- *                   description: Total number of users in the system.
- *                   example: 1000
- *                 activeUserTodayCount:
- *                   type: integer
- *                   description: Number of users active today.
- *                   example: 150
- *                 rolling7DayAvgActiveUserCount:
- *                   type: number
- *                   description: Rolling 7-day average of active users.
- *                   example: 200
- *       500:
- *         description: Server error.
- */
-router.get('/stats', async (req, res, next): Promise<void> => {
-  try {
-    const result = await getUsersStats();
-    res.status(200).json(result);
-  } catch (error) {
-    next(error);
-  }
-});
-
 export default router;
