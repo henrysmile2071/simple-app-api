@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import sendgrid from '@sendgrid/mail';
 
-sendgrid.setApiKey(process.env.SENDGRID_API_KEY || ''); 
+sendgrid.setApiKey(process.env.SENDGRID_API_KEY!); 
 
 // Generate the email confirmation token
 const generateConfirmationToken = (userId: string): string => {
@@ -15,7 +15,7 @@ export const sendConfirmationEmail = async (userEmail: string, userId: string): 
 
   const msg = {
     to: userEmail,
-    from: process.env.SENDGRID_SENDER_MAIL || '',
+    from: process.env.SENDGRID_SENDER_MAIL!,
     subject: 'Confirm Your Email',
     text: `Click the following link to confirm your email: ${confirmUrl}`,
     html: `<strong>Click the following link to confirm your email:</strong> <a href="${confirmUrl}">Confirm Email</a>`,
