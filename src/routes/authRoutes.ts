@@ -205,7 +205,7 @@ router.get('/confirm-email/:token', async (req, res, next): Promise<void> => {
       return;
     }
 
-    res.status(200).json({ message: 'Email successfully verified!' });
+    res.status(200).redirect(process.env.LOGIN_PAGE_URL || '/');
   } catch (error) {
     next(error);
   }
