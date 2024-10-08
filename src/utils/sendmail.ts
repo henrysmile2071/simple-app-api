@@ -11,7 +11,7 @@ const generateConfirmationToken = (userId: string): string => {
 // Send the confirmation email
 export const sendConfirmationEmail = async (userEmail: string, userId: string): Promise<void> => {
   const token = generateConfirmationToken(userId);
-  const confirmUrl = `${process.env.BASE_URL}/confirm-email/${token}`;
+  const confirmUrl = `${process.env.BASE_URL}/auth/confirm-email/${token}`;
 
   const msg = {
     to: userEmail,
