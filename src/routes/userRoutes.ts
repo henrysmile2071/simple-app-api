@@ -54,7 +54,7 @@ router.get('/profile', async (req, res, next): Promise<void> => {
  * /users/name:
  *   post:
  *     summary: Update the authenticated user's name
- *     description: Allows a logged-in user to update their name. Validates the input using Typia and updates the user's name in the database.
+ *     description: Allows a logged-in user to update their name. 
  *     tags:
  *       - Users
  *     requestBody:
