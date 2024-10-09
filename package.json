@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.ts\"",
-    "check-format": "prettier --check \"src/**/*.ts\"",
+    "check-format": "prettier --check \"src/**/*.ts\""
   },
   "keywords": [],
   "author": "Henry Chen",
