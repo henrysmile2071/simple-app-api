@@ -1,6 +1,9 @@
 {
   "name": "simple-app-api",
   "version": "1.0.0",
+  "engines": {
+    "node": "20.x"
+  },
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -12,7 +15,6 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "check-format": "prettier --check \"src/**/*.ts\"",
-    "prepare": "ts-patch install && typia patch"
   },
   "keywords": [],
   "author": "Henry Chen",
