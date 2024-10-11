@@ -9,7 +9,8 @@ import userRoutes from './routes/userRoutes.js';
 import { ensureAuthenticated } from './middlewares/helpers.js';
 
 const app = express();
-
+//set trust proxy to true in production, such as in Heroku: https://expressjs.com/en/guide/behind-proxies.html
+app.set('trust proxy', process.env.NODE_ENV === 'production');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(flash());
