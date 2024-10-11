@@ -1,0 +1,31 @@
+{
+ "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true
+    },
+    "target": "es2022",
+    "transform": {
+      "decoratorVersion": "2022-03"
+    },
+    "loose": false,
+     "experimental": {
+      "plugins": [
+        [
+          "@swc/plugin-transform-imports",
+          {
+        "^(.*?)(\\.ts)$": {
+          "skipDefaultConversion": true,
+          "transform": "{{matches.[1]}}.js"
+        }
+      }
+        ]
+      ]
+    }
+  },
+  "module": {
+    "type": "es6",
+    "strict": true,
+    "noInterop": true
+  },
+}

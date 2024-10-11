@@ -6,9 +6,8 @@ import {
   updateUserPasswordById,
   getUsers,
   getUsersStats
-} from '@services/UserService';
-import { validate, userPassword, userName } from '@middlewares/validators';
-import { assertHasUser } from '@customTypes/custom';
+} from '../services/UserService.js';
+import { validate, userPassword, userName, assertHasUser } from '../middlewares/validators.js';
 
 const router = Router();
 

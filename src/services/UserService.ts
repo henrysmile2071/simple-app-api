@@ -8,9 +8,9 @@ import {
   fetchUsersFromDatabase,
   updateUserLoginStats,
   fetchUsersStats,
-} from '../repositories/UserRepository';
-import { User } from '@entities/User';
-import { UserProfile, UserStats, UserStat } from '@customTypes/custom';
+} from '../repositories/UserRepository.js';
+import { User } from '../entities/User.js';
+import { UserProfile, UserStats, UserStat } from '../../types/custom.js';
 
 // Find user by email
 export const getUserByEmail = async (email: string): Promise<User | null> => {

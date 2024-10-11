@@ -1,11 +1,11 @@
 import { check, ValidationChain, validationResult } from 'express-validator';
-import { getUserByEmail } from '@services/UserService';
+import { getUserByEmail } from '../services/UserService.js';
 import { Request, Response, NextFunction } from 'express';
-
+import { User } from '../entities/User.js';
 export const validate = (validations: ValidationChain[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     // Run all the validations
-    await Promise.all(validations.map(validation => validation.run(req)));
+    await Promise.all(validations.map((validation) => validation.run(req)));
 
     // Check for validation errors
     const errors = validationResult(req);
@@ -17,7 +17,7 @@ export const validate = (validations: ValidationChain[]) => {
     // If no errors, move to the next middleware
     next();
   };
-}
+};
 
 export const userSignup = [
   check('email')
@@ -73,4 +73,11 @@ export const userName = [
     .withMessage('Name is required')
     .isLength({ max: 50 })
     .withMessage('Name must not exceed 50 characters'),
-]
+];
+
+export type RequestWithUser = Express.Request & { user: User };
+export function assertHasUser(req: Express.Request): asserts req is RequestWithUser {
+  if (!('user' in req)) {
+    throw new Error('Request object without user found unexpectedly');
+  }
+}

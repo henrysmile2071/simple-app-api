@@ -1,4 +1,4 @@
-import { User } from "@entities/User";
+import { User } from "../src/entities/User.js";
 export interface UserProfile {
   name: string | null;
   email: string | null;

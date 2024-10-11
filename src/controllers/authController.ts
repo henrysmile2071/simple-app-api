@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { registerUser } from '@services/UserService';
-import { sendConfirmationEmail } from '@utils/sendmail';
+import { registerUser } from '../services/UserService.js';
+import { sendConfirmationEmail } from '../utils/sendmail.js';
 
 export const signup = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;

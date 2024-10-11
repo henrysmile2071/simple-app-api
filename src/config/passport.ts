@@ -2,8 +2,8 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { getUserByEmail, getUserById, updateUserStats, registerUser } from '@services/UserService';
-import { sendConfirmationEmail } from '@utils/sendmail';
+import { getUserByEmail, getUserById, updateUserStats, registerUser } from '../services/UserService.js';
+import { sendConfirmationEmail } from '../utils/sendmail.js';
 // Local Strategy for user-defined password authentication
 passport.use(
   new LocalStrategy(

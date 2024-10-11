@@ -2,11 +2,11 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import session from 'express-session';
 import flash from 'connect-flash';
-import passport from './config/passport';
-import { swaggerSpec } from './config/swagger';
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import { ensureAuthenticated } from '@middlewares/helpers';
+import passport from './config/passport.js';
+import { swaggerSpec } from './config/swagger.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import { ensureAuthenticated } from './middlewares/helpers.js';
 
 const app = express();
 

@@ -7,9 +7,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node dist/src/index.js",
     "dev": "nodemon --exec tsx -r dotenv/config src/index.ts",
     "build": "tsc",
+    "build:ci": "tsc && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -38,6 +39,9 @@
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
+    "@swc/cli": "^0.4.1-nightly.20240914",
+    "@swc/core": "^1.7.26",
+    "@swc/plugin-transform-imports": "^3.0.3",
     "@types/bcrypt": "^5.0.2",
     "@types/connect-flash": "^0.0.40",
     "@types/express": "^5.0.0",

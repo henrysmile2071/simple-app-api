@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import passport from '@config/passport';
-import { signup } from '@controllers/authController';
-import { validate, userSignup } from '@middlewares/validators';
-import { verifyUserEmailById } from '@services/UserService';
+import passport from '../config/passport.js';
+import { signup } from '../controllers/authController.js';
+import { validate, userSignup } from '../middlewares/validators.js';
+import { verifyUserEmailById } from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
 const router = Router();
 

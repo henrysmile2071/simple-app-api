@@ -1,7 +1,7 @@
-import { AppDataSource } from "@config/db";
-import { User } from "@entities/User";
+import { AppDataSource } from "../config/db.js";
+import { User } from "../entities/User.js";
 import { MoreThan, Between } from "typeorm";
-import { UserStats } from "@customTypes/custom";
+import { UserStats } from "../../types/custom.js";
 
 export const userRepository = AppDataSource.getRepository(User);
 
