@@ -39,6 +39,8 @@ export const verifyUserEmail = async (id: string): Promise<User | null> => {
   const user = await findUserById(id);
   if (!user) return null;
   user.isEmailVerified = true;
+  user.loginCount++;
+  user.lastActiveSession = new Date();
   return await userRepository.save(user);
 };
 
