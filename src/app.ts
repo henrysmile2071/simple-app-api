@@ -1,12 +1,26 @@
 import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import session from 'express-session';
+import pgSession from 'connect-pg-simple';
+import pg from 'pg';
 import flash from 'connect-flash';
 import passport from './config/passport.js';
 import { swaggerSpec } from './config/swagger.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import { ensureAuthenticated } from './middlewares/helpers.js';
+
+const pgPool = new pg.Pool({
+  user: process.env.DB_USERNAME,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: parseInt(process.env.DB_PORT!),
+  ssl: {
+    rejectUnauthorized: true, // Ensure the connection is authorized
+    ca: process.env.DB_CA_CERT, // Path to your SSL certificate file
+  },
+});
 
 const app = express();
 //set trust proxy to true in production, such as in Heroku: https://expressjs.com/en/guide/behind-proxies.html
@@ -16,6 +30,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(flash());
 app.use(
   session({
+    store: new (pgSession(session))({
+      pool: pgPool,
+      tableName: 'session',
+    }),
     secret: 'your_secret_key',
     resave: false,
     saveUninitialized: false,
