@@ -1,7 +1,8 @@
 import { check, ValidationChain, validationResult } from 'express-validator';
 import { getUserByEmail } from '../services/UserService.js';
 import { Request, Response, NextFunction } from 'express';
-import { User } from '../entities/User.js';
+import { RequestWithUser } from '../../types/custom.js';
+
 export const validate = (validations: ValidationChain[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     // Run all the validations
@@ -75,7 +76,6 @@ export const userName = [
     .withMessage('Name must not exceed 50 characters'),
 ];
 
-export type RequestWithUser = Express.Request & { user: User };
 export function assertHasUser(req: Express.Request): asserts req is RequestWithUser {
   if (!('user' in req)) {
     throw new Error('Request object without user found unexpectedly');

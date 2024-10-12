@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import passport from '../config/passport.js';
 import { signup } from '../controllers/authController.js';
-import { validate, userSignup } from '../middlewares/validators.js';
+import { validate, userSignup, assertHasUser } from '../middlewares/validators.js';
 import { verifyUserEmailById } from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
+import { generateToken } from '../utils/jwt.js';
 const router = Router();
 
 /**
@@ -105,7 +106,7 @@ router.post('/signup', validate(userSignup), async (req, res, next): Promise<voi
 router.post(
   '/login',
   passport.authenticate('local', { failureFlash: true, failureRedirect: '/error' }),
-  async(req, res) => {
+  async (req, res) => {
     res.status(200).json({ message: 'login success' });
   }
 );
@@ -137,22 +138,28 @@ router.post('/logout', (req, res) => {
 
 /**
  * @swagger
- * /auth/confirm-email/{token}:
- *   get:
- *     summary: Verify a user's email using a confirmation token.
+ * /auth/token/:
+ *   post:
+ *     summary: Verify user login using a confirmation token.
  *     description: Confirms a user's email address by decoding a JWT token and updating the user's verification status.
  *     tags:
  *       - Auth
- *     parameters:
- *       - in: path
- *         name: token
- *         required: true
- *         schema:
- *           type: string
- *         description: The email confirmation token provided to the user.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: jwt token received from the email verification link or google callback.
+ *                 example: JWT_TOKEN
  *     responses:
  *       200:
- *         description: Email successfully verified.
+ *         description: Token successfully verified.
  *         content:
  *           application/json:
  *             schema:
@@ -160,7 +167,7 @@ router.post('/logout', (req, res) => {
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Email successfully verified!
+ *                   example: Token verified!
  *       404:
  *         description: User not found.
  *         content:
@@ -192,12 +199,10 @@ router.post('/logout', (req, res) => {
  *                   type: string
  *                   example: Internal server error.
  */
-router.get('/confirm-email/:token', async (req, res, next): Promise<void> => {
+router.post('/token', async (req, res, next): Promise<void> => {
   try {
-    const { token } = req.params;
-
+    const { token } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-
     const user = await verifyUserEmailById(decoded.userId);
 
     if (!user) {
@@ -205,7 +210,9 @@ router.get('/confirm-email/:token', async (req, res, next): Promise<void> => {
       return;
     }
 
-    res.status(200).redirect(process.env.LOGIN_PAGE_URL!);
+    req.session.user = user;
+    res.cookie('connect.sid', req.session.id, { httpOnly: true, secure: true });
+    res.status(200).json({ message: 'Token verified!' });
   } catch (error) {
     next(error);
   }
@@ -235,7 +242,7 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
  *       - Authentication
  *     responses:
  *       302:
- *         description: 
+ *         description:
  *           - Redirects to the home page on successful login.
  *           - Redirects to the login page on authentication failure.
  *         headers:
@@ -244,11 +251,13 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
  *             schema:
  *               type: string
  */
-router.get('/google/callback',
+router.get(
+  '/google/callback',
   passport.authenticate('google', { failureRedirect: process.env.LOGIN_PAGE_URL! }),
   (req, res) => {
-    
-    res.redirect(process.env.HOME_PAGE_URL!);
+    assertHasUser(req);
+    const token = generateToken(req.user.id);
+    res.redirect(`${process.env.HOME_PAGE_URL!}?token=${token}`);
   }
 );
 

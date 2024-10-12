@@ -1,17 +1,11 @@
-import jwt from 'jsonwebtoken';
 import sendgrid from '@sendgrid/mail';
-
+import { generateToken as generateConfirmationToken } from './jwt.js';
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!); 
-
-// Generate the email confirmation token
-const generateConfirmationToken = (userId: string): string => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: '1d' });
-};
 
 // Send the confirmation email
 export const sendConfirmationEmail = async (userEmail: string, userId: string): Promise<void> => {
   const token = generateConfirmationToken(userId);
-  const confirmUrl = `${process.env.BASE_URL}/auth/confirm-email/${token}`;
+  const confirmUrl = `${process.env.HOME_PAGE_URL}?token=${token}`;
 
   const msg = {
     to: userEmail,
