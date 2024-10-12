@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from '../config/passport.js';
 import { signup } from '../controllers/authController.js';
-import { validate, userSignup, assertHasUser } from '../middlewares/validators.js';
+import { validate, userSignup, assertHasUser, authToken } from '../middlewares/validators.js';
 import { verifyUserEmailById } from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
 import { generateToken } from '../utils/jwt.js';
@@ -199,7 +199,7 @@ router.post('/logout', (req, res) => {
  *                   type: string
  *                   example: Internal server error.
  */
-router.post('/token', async (req, res, next): Promise<void> => {
+router.post('/token', validate(authToken), async (req, res, next): Promise<void> => {
   try {
     const { token } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
@@ -210,9 +210,13 @@ router.post('/token', async (req, res, next): Promise<void> => {
       return;
     }
 
-    req.session.user = user;
-    res.cookie('connect.sid', req.session.id, { httpOnly: true, secure: true });
-    res.status(200).json({ message: 'Token verified!' });
+    req.login(user, (err) => {
+      if (err) {
+        req.flash('error', 'Failed to authenticate');
+        return res.status(500).redirect(process.env.LOGIN_PAGE_URL!);
+      }
+      res.status(200).json({ message: 'Token verified!' });
+    });
   } catch (error) {
     next(error);
   }
