@@ -9,7 +9,7 @@ import {
   updateUserLoginStats,
   fetchUsersStats,
 } from '../repositories/UserRepository.js';
-import { User } from '../entities/User.js';
+import { User } from '../database/entities/User.js';
 import { UserProfile, UserStats, UserStat } from '../../types/custom.js';
 
 // Find user by email
@@ -18,7 +18,12 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 };
 
 // Create a new user
-export const registerUser = async (email: string, password: string | null, name: string | null, googleId: string | null): Promise<User> => {
+export const registerUser = async (
+  email: string,
+  password: string | null,
+  name: string | null,
+  googleId: string | null
+): Promise<User> => {
   return await createUser(email, password, name, googleId);
 };
 

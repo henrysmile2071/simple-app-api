@@ -1,19 +1,14 @@
-import { User } from "../src/entities/User.js";
+import { User } from '../src/database/entities/User.js';
 export interface UserProfile {
   name: string | null;
   email: string | null;
-};
-
-export type RequestWithUser = Express.Request & { user: User };
-export function assertHasUser(req: Express.Request): asserts req is RequestWithUser {
-  if (!('user' in req)) {
-    throw new Error('Request object without user found unexpectedly');
-  }
 }
 
+export type RequestWithUser = Express.Request & { user: User };
+
 export interface UserStats {
-  totalUsers: number; 
-  activeUserTodayCount: number; 
+  totalUsers: number;
+  activeUserTodayCount: number;
   rolling7DayAvgActiveUserCount: number;
 }
 

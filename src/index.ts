@@ -1,7 +1,7 @@
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 dotenv.config();
 import app from './app.js';
-import { initializeDatabase } from './config/db.js';
+import { initializeDatabase } from './database/data-source.js';
 
 const port = process.env.PORT || 3000;
 initializeDatabase().then(() => {

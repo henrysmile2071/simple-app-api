@@ -21,7 +21,7 @@
         "types/*"
       ],
       "@entities/*": [
-        "src/entities/*"
+        "src/database/entities/*"
       ],
       "@services/*": [
         "src/services/*"
