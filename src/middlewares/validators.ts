@@ -76,6 +76,11 @@ export const userName = [
     .withMessage('Name must not exceed 50 characters'),
 ];
 
+export const authToken = [
+  check('token')
+    .notEmpty()
+    .withMessage('Token is required'),
+]
 export function assertHasUser(req: Express.Request): asserts req is RequestWithUser {
   if (!('user' in req)) {
     throw new Error('Request object without user found unexpectedly');
