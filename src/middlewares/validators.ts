@@ -61,7 +61,9 @@ export const userPassword = [
     .matches(/[A-Z]/)
     .withMessage('Password must contain at least one uppercase letter')
     .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>]).+$/)
-    .withMessage('Password must contain at least one special character'),
+    .withMessage('Password must contain at least one special character')
+    .custom((value, { req }) => value !== req.body.currentPassword)
+    .withMessage('New password cannot be the same as the current password'),
 
   check('newPasswordConfirmation')
     .custom((value, { req }) => value === req.body.newPassword)
