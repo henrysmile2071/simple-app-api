@@ -4,7 +4,7 @@ import { signup } from '../controllers/authController.js';
 import { validate, userSignup, assertHasUser, authToken } from '../middlewares/validators.js';
 import { verifyUserEmailById, getUserByEmail } from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
-import { generateToken } from '../utils/jwt.js';
+import { generateIdToken, generateEmailToken } from '../utils/jwt.js';
 import { sendConfirmationEmail } from '../utils/sendmail.js';
 const router = Router();
 
@@ -102,7 +102,7 @@ router.post('/signup', validate(userSignup), async (req, res, next): Promise<voi
  *               example:
  *                 message: "Login successful"
  *       403:
- *         description: User needs to verify their email, includes the token to send verification email(Forbidden). 
+ *         description: User needs to verify their email, includes the token to send verification email(Forbidden).
  *         content:
  *           application/json:
  *             schema:
@@ -141,7 +141,7 @@ router.post(
         if (err) {
           return res.status(500).json({ error: 'Failed to log out' });
         }
-        const token = generateToken(email);
+        const token = generateEmailToken(email);
         res.status(403).json({ message: 'email not verified', token });
       });
       return;
@@ -344,7 +344,7 @@ router.get(
   passport.authenticate('google', { failureRedirect: process.env.LOGIN_PAGE_URL! }),
   (req, res) => {
     assertHasUser(req);
-    const token = generateToken(req.user.id);
+    const token = generateIdToken(req.user.id);
     res.redirect(`${process.env.HOME_PAGE_URL!}?token=${token}`);
   }
 );
