@@ -54,14 +54,18 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use('/auth', authRoutes);
 app.use('/users', ensureAuthenticated, userRoutes);
+// error handling for passport errors
 app.get('/error', (req, res) => {
-  res.status(401).send(req.flash('error'));
+  res.status(401).json({ message: req.flash('error')[0] });
 });
 app.get('/login', (req, res) => {
   res.redirect(process.env.LOGIN_PAGE_URL!);
 });
 app.get('/home', (req, res) => {
   res.redirect(process.env.HOME_PAGE_URL!);
+});
+app.get('/redirect', (req, res) => {
+  res.redirect(process.env.REDIRECT_PAGE_URL!);
 });
 
 export default app;
