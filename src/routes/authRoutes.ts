@@ -2,7 +2,7 @@ import { Router } from 'express';
 import passport from '../config/passport.js';
 import { signup } from '../controllers/authController.js';
 import { validate, userSignup, assertHasUser, authToken } from '../middlewares/validators.js';
-import { verifyUserEmailById, getUserById } from '../services/UserService.js';
+import { verifyUserEmailById, getUserByEmail } from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
 import { generateToken } from '../utils/jwt.js';
 import { sendConfirmationEmail } from '../utils/sendmail.js';
@@ -101,25 +101,50 @@ router.post('/signup', validate(userSignup), async (req, res, next): Promise<voi
  *                   example: "Login successful"
  *               example:
  *                 message: "Login successful"
- *       302:
- *        description: User needs to verify their email. redirect them to redirect page with token in param.
+ *       403:
+ *         description: User needs to verify their email, includes the token to send verification email(Forbidden). 
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "email not verified"
+ *                 token:
+ *                  type: string
+ *                  example: "JWT_TOKEN"
+ *               example:
+ *                 message: "email not verified"
+ *                 token: "JWT_TOKEN"
  *       401:
- *         description: Invalid credentials (Unauthorized).
+ *         description: Invalid credentials.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid password"
+ *               example:
+ *                 message: "Invalid password"
  */
 router.post(
   '/login',
   passport.authenticate('local', { failureFlash: true, failureRedirect: '/error' }),
   async (req, res) => {
     assertHasUser(req);
-    const { id, isEmailVerified } = req.user;
+    const { email, isEmailVerified } = req.user;
     if (!isEmailVerified) {
       req.logOut((err) => {
         if (err) {
           return res.status(500).json({ error: 'Failed to log out' });
         }
-        const token = generateToken(id);
-        return res.redirect(`${process.env.REDIRECT_PAGE_URL}?token=${token}`);
+        const token = generateToken(email);
+        res.status(403).json({ message: 'email not verified', token });
       });
+      return;
     }
     res.status(200).json({ message: 'login success' });
   }
@@ -135,15 +160,13 @@ router.post(
  *       - Auth
  *     responses:
  *       302:
- *         description: 
- *          -Successfully logged out and redirected to the login page.
+ *         description: Successfully logged out and redirected to the login page.
  *       500:
  *         description: Failed to log out
  */
 router.post('/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
-      req.flash('error', 'Failed to log out');
       return res.status(500);
     }
     req.flash('success', 'Logged out successfully');
@@ -170,7 +193,7 @@ router.post('/logout', (req, res) => {
  *             properties:
  *               token:
  *                 type: string
- *                 description: jwt token from redirect url param
+ *                 description: jwt token from unverified user email login
  *                 example: JWT_TOKEN
  *     responses:
  *       200:
@@ -191,8 +214,8 @@ router.post('/logout', (req, res) => {
 router.post('/send-verification-email', validate(authToken), async (req, res, next) => {
   try {
     const { token } = req.body;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    const user = await getUserById(decoded.userId);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
+    const user = await getUserByEmail(decoded.email);
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
@@ -279,8 +302,7 @@ router.post('/token', validate(authToken), async (req, res, next): Promise<void>
 
     req.login(user, (err) => {
       if (err) {
-        req.flash('error', 'Failed to authenticate');
-        return res.status(500).redirect(process.env.LOGIN_PAGE_URL!);
+        return res.status(500);
       }
       res.status(200).json({ message: 'Token verified!' });
     });
@@ -316,11 +338,6 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
  *         description:
  *           - Redirects to the home page on successful login.
  *           - Redirects to the login page on authentication failure.
- *         headers:
- *           Set-Cookie:
- *             description: Sets a session cookie after successful login.
- *             schema:
- *               type: string
  */
 router.get(
   '/google/callback',
