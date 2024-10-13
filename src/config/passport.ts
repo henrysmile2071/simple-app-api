@@ -19,11 +19,6 @@ passport.use(
         const isMatch = await user.comparePassword(password);
         if (!isMatch) return done(null, false, { message: 'Invalid password' })
 
-        const isEmailVerified = user.isEmailVerified;
-        if (!isEmailVerified) {
-          await sendConfirmationEmail(user.email, user.id);
-          return done(null, false, { message: `Email not verified, please check ${email} inbox` });
-        }
         await updateUserStats(user);
         return done(null, user);
       } catch (error) {
