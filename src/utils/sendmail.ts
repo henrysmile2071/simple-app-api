@@ -3,7 +3,7 @@ import { generateToken as generateConfirmationToken } from './jwt.js';
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!); 
 
 // Send the confirmation email
-export const sendConfirmationEmail = async (userEmail: string, userId: string): Promise<void> => {
+export const sendConfirmationEmail = async (userEmail: string, userId: string): Promise<void | Error> => {
   const token = generateConfirmationToken(userId);
   const confirmUrl = `${process.env.HOME_PAGE_URL}?token=${token}`;
 
@@ -16,8 +16,8 @@ export const sendConfirmationEmail = async (userEmail: string, userId: string): 
   };
 
   try {
-    await sendgrid.send(msg);
-    console.log('Confirmation email sent');
+    const res = await sendgrid.send(msg);
+    console.log('Sendgrid Response:', res);
   } catch (error) {
     console.error('Error sending email:', error);
   }
