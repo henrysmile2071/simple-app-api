@@ -5,7 +5,7 @@ import { validate, userSignup, assertHasUser, authToken } from '../middlewares/v
 import { verifyUserEmailById, getUserById } from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
 import { generateToken } from '../utils/jwt.js';
-import { sendConfirmationEmail } from '@utils/sendmail.js';
+import { sendConfirmationEmail } from '../utils/sendmail.js';
 const router = Router();
 
 /**
