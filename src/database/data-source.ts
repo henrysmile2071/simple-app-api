@@ -1,6 +1,7 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
 import { User } from "./entities/User.js";
+import { SessionLog } from "./entities/SessionLog.js";
 export const AppDataSource = new DataSource({
   type: "postgres",
   host: process.env.DB_HOST,
@@ -10,7 +11,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   synchronize: process.env.NODE_ENV === 'develop',
   logging: false,
-  entities: [User],
+  entities: [User, SessionLog],
   migrations: ["src/database/migrations/**/*.js"],
   subscribers: [],
   ssl: {

@@ -1,9 +1,11 @@
 import { AppDataSource } from '../database/data-source.js';
 import { User } from '../database/entities/User.js';
-import { MoreThan, Between } from 'typeorm';
+import { SessionLog } from '../database/entities/SessionLog.js';
+import { MoreThan } from 'typeorm';
 import { UserStats } from '../../types/custom.js';
 
 export const userRepository = AppDataSource.getRepository(User);
+export const sessionLogRepository = AppDataSource.getRepository(SessionLog);
 
 export const findUserByEmail = async (email: string): Promise<User | null> => {
   return await userRepository.findOneBy({ email });
@@ -28,6 +30,13 @@ export const createUser = async (
   return await userRepository.save(user);
 };
 
+export const createSessionLog = async (userId: string): Promise<void> => {
+  const sessionLog = new SessionLog();
+  sessionLog.userId = userId;
+  await sessionLogRepository.save(sessionLog);
+  return;
+};
+
 export const updateUserName = async (id: string, name: string): Promise<User | null> => {
   const user = await findUserById(id);
   if (!user) return null;
@@ -39,8 +48,6 @@ export const verifyUserEmail = async (id: string): Promise<User | null> => {
   const user = await findUserById(id);
   if (!user) return null;
   user.isEmailVerified = true;
-  user.loginCount++;
-  user.lastActiveSession = new Date();
   return await userRepository.save(user);
 };
 
@@ -58,9 +65,12 @@ export const fetchUsersFromDatabase = async (): Promise<User[]> => {
   return users;
 };
 
-export const updateUserLoginStats = async (user: User): Promise<User> => {
+export const updateUserLoginStats = async (id: string): Promise<User | null> => {
+  const user = await findUserById(id);
+  if (!user) return null;
   user.loginCount++;
   user.lastActiveSession = new Date();
+  createSessionLog(user.id);
   return await userRepository.save(user);
 };
 
@@ -82,13 +92,14 @@ export const fetchUsersStats = async (): Promise<UserStats | null> => {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(now.getDate() - 7);
 
-  const activeUsersPast7Days = await userRepository.count({
-    where: {
-      lastActiveSession: Between(sevenDaysAgo, now),
-    },
-  });
+ const activeUserCountPast7Days = await sessionLogRepository
+   .createQueryBuilder('sessionLogs')
+   .select('sessionLogs.userId')
+   .where("sessionLogs.loginTime > NOW() - INTERVAL '7 DAYS'")
+   .groupBy('sessionLogs.userId')
+   .getCount();
 
-  const rolling7DayAvgActiveUserCount = Math.ceil(activeUsersPast7Days / 7);
+  const rolling7DayAvgActiveUserCount = Math.ceil(activeUserCountPast7Days / 7);
   return {
     totalUsers,
     activeUserTodayCount,

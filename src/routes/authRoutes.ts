@@ -2,7 +2,11 @@ import { Router } from 'express';
 import passport from '../config/passport.js';
 import { signup } from '../controllers/authController.js';
 import { validate, userSignup, assertHasUser, authToken } from '../middlewares/validators.js';
-import { verifyUserEmailById, getUserByEmail } from '../services/UserService.js';
+import {
+  getUserByEmail,
+  verifyUserEmailById,
+  updateUserStats
+} from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
 import { generateIdToken, generateEmailToken } from '../utils/jwt.js';
 import { sendConfirmationEmail } from '../utils/sendmail.js';
@@ -146,6 +150,7 @@ router.post(
       });
       return;
     }
+    await updateUserStats(req.user.id);
     res.status(200).json({ message: 'login success' });
   }
 );
@@ -231,7 +236,7 @@ router.post('/send-verification-email', validate(authToken), async (req, res, ne
  * /auth/token/:
  *   post:
  *     summary: Verify user login using a confirmation token.
- *     description: Confirms a user's email address by decoding a JWT token and updating the user's verification status.
+ *     description: Confirms a user's email address by decoding a JWT token and update the user's login status.
  *     tags:
  *       - Auth
  *     requestBody:
@@ -293,7 +298,9 @@ router.post('/token', validate(authToken), async (req, res, next): Promise<void>
   try {
     const { token } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
-    const user = await verifyUserEmailById(decoded.userId);
+    //verify email for account
+    await verifyUserEmailById(decoded.userId);
+    const user = await updateUserStats(decoded.userId);
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });

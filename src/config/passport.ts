@@ -2,8 +2,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { getUserByEmail, getUserById, updateUserStats, registerUser } from '../services/UserService.js';
-import { sendConfirmationEmail } from '../utils/sendmail.js';
+import { getUserByEmail, getUserById, registerUser } from '../services/UserService.js';
 // Local Strategy for user-defined password authentication
 passport.use(
   new LocalStrategy(
@@ -19,7 +18,6 @@ passport.use(
         const isMatch = await user.comparePassword(password);
         if (!isMatch) return done(null, false, { message: 'Invalid password' })
 
-        await updateUserStats(user);
         return done(null, user);
       } catch (error) {
         return done(error);

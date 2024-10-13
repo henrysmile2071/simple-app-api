@@ -70,8 +70,8 @@ export const getUsers = async (): Promise<UserStat[]> => {
   return users;
 };
 
-export const updateUserStats = async (user: User): Promise<User | null> => {
-  const updatedUser = await updateUserLoginStats(user);
+export const updateUserStats = async (id: string): Promise<User | null> => {
+  const updatedUser = await updateUserLoginStats(id);
   return updatedUser;
 };
 
