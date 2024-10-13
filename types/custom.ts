@@ -2,6 +2,7 @@ import { User } from '../src/database/entities/User.js';
 export interface UserProfile {
   name: string | null;
   email: string | null;
+  isGoogleAccount: boolean | null;
 }
 
 export type RequestWithUser = Express.Request & { user: User };

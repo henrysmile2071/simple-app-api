@@ -5,7 +5,7 @@ import {
   updateUserNameById,
   updateUserPasswordById,
   getUsers,
-  getUsersStats
+  getUsersStats,
 } from '../services/UserService.js';
 import { validate, userPassword, userName, assertHasUser } from '../middlewares/validators.js';
 
@@ -53,7 +53,7 @@ router.get('/profile', async (req, res, next): Promise<void> => {
  * /users/name:
  *   post:
  *     summary: Update the authenticated user's name
- *     description: Allows a logged-in user to update their name. 
+ *     description: Allows a logged-in user to update their name.
  *     tags:
  *       - Users
  *     requestBody:
@@ -173,9 +173,16 @@ router.post('/name', validate(userName), async (req, res, next): Promise<void> =
 router.post('/password', validate(userPassword), async (req, res, next): Promise<void> => {
   try {
     assertHasUser(req);
-    const verifyPassword = await (
-      await getUserById(req.user.id)
-    )?.comparePassword(req.body.currentPassword);
+    const user = await getUserById(req.user.id);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    if (user?.googleId) {
+      res.status(400).json({ message: 'cannot update password for Google accounts' });
+      return;
+    }
+    const verifyPassword = user.comparePassword(req.body.currentPassword);
     if (!verifyPassword) {
       res.status(400).json({ message: 'incorrect password' });
       return;

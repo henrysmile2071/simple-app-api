@@ -35,14 +35,14 @@ export const getUserById = async (id: string): Promise<User | null> => {
 // Find user Profile by Id
 export const getUserProfileById = async (id: string): Promise<UserProfile | null> => {
   const user = await findUserById(id);
-  const userProfile = user ? { name: user.name, email: user.email } : null;
+  const userProfile = user ? { name: user.name, email: user.email, isGoogleAccount: user.googleId ? true : false } : null;
   return userProfile;
 };
 
 // Update user name by Id
 export const updateUserNameById = async (id: string, name: string): Promise<UserProfile | null> => {
   const user = await updateUserName(id, name);
-  const userProfile = user ? { name: user.name, email: user.email } : null;
+  const userProfile = user ? { name: user.name, email: user.email, isGoogleAccount: user.googleId ? true : false } : null;
   return userProfile;
 };
 
