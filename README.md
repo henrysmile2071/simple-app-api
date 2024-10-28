@@ -5,6 +5,8 @@
 
 This is a simple API app built with **Node.js**, **TypeScript**, **Express**, **PostgreSQL**, and **TypeORM**. It features user authentication via **Google OAuth** and traditional email/password login, along with email verification using **SendGrid**. 
 
+Documentation Live Demo: https://simple-api-7624-155de3f88874.herokuapp.com/api-docs/
+
 ## Features
 
 - **User Sign-up**: Users can sign up using their email and password or Google OAuth.
