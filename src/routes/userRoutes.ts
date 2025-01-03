@@ -182,7 +182,7 @@ router.post('/password', validate(userPassword), async (req, res, next): Promise
       res.status(400).json({ message: 'cannot update password for Google accounts' });
       return;
     }
-    const verifyPassword = user.comparePassword(req.body.currentPassword);
+    const verifyPassword = await user.comparePassword(req.body.currentPassword);
     if (!verifyPassword) {
       res.status(400).json({ message: 'incorrect password' });
       return;
