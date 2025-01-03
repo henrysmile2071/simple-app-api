@@ -40,7 +40,7 @@ export const userSignup = [
     .withMessage('Password must contain at least one lowercase letter')
     .matches(/[A-Z]/)
     .withMessage('Password must contain at least one uppercase letter')
-    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>]).+$/)
+    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>+\-=]).+$/)
     .withMessage('Password must contain at least one special character'),
 
   check('passwordConfirmation')
@@ -60,7 +60,7 @@ export const userPassword = [
     .withMessage('Password must contain at least one lowercase letter')
     .matches(/[A-Z]/)
     .withMessage('Password must contain at least one uppercase letter')
-    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>]).+$/)
+    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>+\-=]).+$/)
     .withMessage('Password must contain at least one special character')
     .custom((value, { req }) => value !== req.body.currentPassword)
     .withMessage('New password cannot be the same as the current password'),
