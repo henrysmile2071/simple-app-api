@@ -170,12 +170,23 @@ router.post(
  *         description: Failed to log out
  */
 router.post('/logout', (req, res) => {
+  // Clear the user from the session
   req.logout((err) => {
     if (err) {
-      return res.status(500);
+      // Send error response with message
+      return res.status(500).json({ error: 'Error during logout' });
     }
-    req.flash('success', 'Logged out successfully');
-    res.redirect('/login');
+
+    // Destroy the session
+    req.session.destroy((sessionErr) => {
+      if (sessionErr) {
+        return res.status(500).json({ error: 'Error destroying session' });
+      }
+
+      // Clear the session cookie
+      res.clearCookie('connect.sid'); // Use your actual session cookie name here
+      res.redirect('/login');
+    });
   });
 });
 
