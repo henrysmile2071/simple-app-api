@@ -5,11 +5,13 @@ import { validate, userSignup, assertHasUser, authToken } from '../middlewares/v
 import {
   getUserByEmail,
   verifyUserEmailById,
-  updateUserStats
+  updateUserStats,
+  getUserById,
 } from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
 import { generateIdToken, generateEmailToken } from '../utils/jwt.js';
 import { sendConfirmationEmail } from '../utils/sendmail.js';
+import { updateUserLoginStats } from 'src/repositories/UserRepository.js';
 const router = Router();
 
 /**
@@ -284,7 +286,7 @@ router.post('/send-verification-email', validate(authToken), async (req, res, ne
  *                 message:
  *                   type: string
  *                   example: User not found.
- *       400:
+ *       401:
  *         description: Invalid or expired token.
  *         content:
  *           application/json:
@@ -293,7 +295,7 @@ router.post('/send-verification-email', validate(authToken), async (req, res, ne
  *               properties:
  *                 message:
  *                   type: string
- *                   example: Invalid or expired token.
+ *                   example: unauthorized token.
  *       500:
  *         description: Internal server error.
  *         content:
@@ -308,21 +310,33 @@ router.post('/send-verification-email', validate(authToken), async (req, res, ne
 router.post('/token', validate(authToken), async (req, res, next): Promise<void> => {
   try {
     const { token } = req.body;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    } catch (error) {
+      console.error(error);
+      res.status(401).send("unauthorized token")
+      return;
+    }
     //verify email for account
     await verifyUserEmailById(decoded.userId);
-    const user = await updateUserStats(decoded.userId);
+    const user = await getUserById(decoded.userId);
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
     }
-
-    req.login(user, (err) => {
+    //if user has already logged in, redirect to home page without updating login stats
+    if (req.isAuthenticated()) {
+      console.log("already logged in");
+      return res.redirect(`${process.env.HOME_PAGE_URL!}`);
+    }
+    req.login(user, async (err) => {
       if (err) {
         return res.status(500);
       }
-      res.status(200).json({ message: 'Token verified!' });
+      await updateUserLoginStats(decoded.userId);
+      res.redirect(`${process.env.HOME_PAGE_URL!}`);
     });
   } catch (error) {
     next(error);
@@ -363,7 +377,7 @@ router.get(
   (req, res) => {
     assertHasUser(req);
     const token = generateIdToken(req.user.id);
-    res.redirect(`${process.env.HOME_PAGE_URL!}?token=${token}`);
+    res.redirect(`${process.env.LOGIN_PAGE_URL!}?token=${token}`);
   }
 );
 
