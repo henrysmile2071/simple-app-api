@@ -11,7 +11,7 @@ import {
 import jwt from 'jsonwebtoken';
 import { generateIdToken, generateEmailToken } from '../utils/jwt.js';
 import { sendConfirmationEmail } from '../utils/sendmail.js';
-import { updateUserLoginStats } from 'src/repositories/UserRepository.js';
+import { updateUserLoginStats } from '../repositories/UserRepository.js';
 const router = Router();
 
 /**
