@@ -8,7 +8,7 @@ export const sendConfirmationEmail = async (
   userId: string
 ): Promise<void | Error> => {
   const token = generateConfirmationToken(userId);
-  const confirmUrl = `${process.env.HOME_PAGE_URL}?token=${token}`;
+  const confirmUrl = `${process.env.LOGIN_PAGE_URL}?token=${token}`;
 
   const msg = {
     to: userEmail,
