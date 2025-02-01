@@ -15,6 +15,10 @@ export const findUserById = async (id: string): Promise<User | null> => {
   return await userRepository.findOneBy({ id });
 };
 
+export const findUserByGoogleId = async (id: string): Promise<User | null> => {
+  return await userRepository.findOneBy({ googleId: id });
+};
+
 export const createUser = async (
   email: string,
   password: string | null,

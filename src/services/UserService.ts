@@ -1,6 +1,7 @@
 import {
   findUserByEmail,
   findUserById,
+  findUserByGoogleId,
   createUser,
   updateUserName,
   verifyUserEmail,
@@ -30,6 +31,11 @@ export const registerUser = async (
 // Find user by ID
 export const getUserById = async (id: string): Promise<User | null> => {
   return await findUserById(id);
+};
+
+// Find user by Google ID
+export const getUserByGoogleId = async (id: string): Promise<User | null> => {
+  return await findUserByGoogleId(id);
 };
 
 // Find user Profile by Id

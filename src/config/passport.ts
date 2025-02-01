@@ -2,7 +2,7 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { getUserByEmail, getUserById, registerUser } from '../services/UserService.js';
+import { getUserByEmail, getUserById, registerUser, getUserByGoogleId } from '../services/UserService.js';
 // Local Strategy for user-defined password authentication
 passport.use(
   new LocalStrategy(
@@ -37,9 +37,9 @@ passport.use(
     async(accessToken, refreshToken, profile, done) => {
       try {
         if (!profile.emails) throw new Error('No email found in Google profile');
-        let user = await getUserByEmail(profile.emails?.[0].value);
+        let user = await getUserByGoogleId(profile.id);
 
-        if (!user || !user.googleId) {
+        if (!user) {
           user = await registerUser(profile.emails?.[0].value, null, profile.displayName, profile.id);
         }
 
