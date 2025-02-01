@@ -232,8 +232,8 @@ router.post('/logout', (req, res) => {
 router.post('/send-verification-email', validate(authToken), async (req, res, next) => {
   try {
     const { token } = req.body;
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
-    const user = await getUserByEmail(decoded.email);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    const user = await getUserById(decoded.id);
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
