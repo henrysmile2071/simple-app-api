@@ -1,5 +1,5 @@
 import sendgrid from '@sendgrid/mail';
-import { generateIdToken as generateConfirmationToken } from './jwt.js';
+import { generateEmailVerificationToken } from './jwt.js';
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY!);
 
 // Send the confirmation email
@@ -7,7 +7,7 @@ export const sendConfirmationEmail = async (
   userEmail: string,
   userId: string
 ): Promise<void | Error> => {
-  const token = generateConfirmationToken(userId);
+  const token = generateEmailVerificationToken(userId);
   const confirmUrl = `${process.env.LOGIN_PAGE_URL}?token=${token}`;
 
   const msg = {

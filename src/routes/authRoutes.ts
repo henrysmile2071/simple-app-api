@@ -9,7 +9,7 @@ import {
   getUserById,
 } from '../services/UserService.js';
 import jwt from 'jsonwebtoken';
-import { generateIdToken, generateEmailToken } from '../utils/jwt.js';
+import { generateIdToken, generateEmailVerificationToken } from '../utils/jwt.js';
 import { sendConfirmationEmail } from '../utils/sendmail.js';
 import { updateUserLoginStats } from '../repositories/UserRepository.js';
 const router = Router();
@@ -141,13 +141,13 @@ router.post(
   passport.authenticate('local', { failureFlash: true, failureRedirect: '/error' }),
   async (req, res) => {
     assertHasUser(req);
-    const { email, isEmailVerified } = req.user;
+    const { isEmailVerified, id } = req.user;
     if (!isEmailVerified) {
       req.logOut((err) => {
         if (err) {
           return res.status(500).json({ error: 'Failed to log out' });
         }
-        const token = generateEmailToken(email);
+        const token = generateEmailVerificationToken(id);
         res.status(403).json({ message: 'email not verified', token });
       });
       return;
@@ -312,7 +312,7 @@ router.post('/token', validate(authToken), async (req, res, next): Promise<void>
     const { token } = req.body;
     let decoded;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string, email: string};
     } catch (error) {
       console.error(error);
       res.status(401).send("unauthorized token")
