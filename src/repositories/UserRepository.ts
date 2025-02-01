@@ -1,14 +1,14 @@
 import { AppDataSource } from '../database/data-source.js';
 import { User } from '../database/entities/User.js';
 import { SessionLog } from '../database/entities/SessionLog.js';
-import { MoreThan } from 'typeorm';
+import { MoreThan, IsNull } from 'typeorm';
 import { UserStats } from '../../types/custom.js';
 
 export const userRepository = AppDataSource.getRepository(User);
 export const sessionLogRepository = AppDataSource.getRepository(SessionLog);
 
 export const findUserByEmail = async (email: string): Promise<User | null> => {
-  return await userRepository.findOneBy({ email });
+  return await userRepository.findOneBy({ email, googleId: IsNull()});
 };
 
 export const findUserById = async (id: string): Promise<User | null> => {

@@ -39,7 +39,7 @@ passport.use(
         if (!profile.emails) throw new Error('No email found in Google profile');
         let user = await getUserByEmail(profile.emails?.[0].value);
 
-        if (!user) {
+        if (!user || !user.googleId) {
           user = await registerUser(profile.emails?.[0].value, null, profile.displayName, profile.id);
         }
 
